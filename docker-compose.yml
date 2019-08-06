@@ -39,6 +39,7 @@ services:
   db:
     image: mysql:5.7
     container_name: db
+    command: --max_allowed_packet=1073741824
     # restart: unless-stopped
     tty: true
     ports:
