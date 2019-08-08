@@ -1,39 +1,36 @@
 # Set master image
-FROM php:7.2-fpm-alpine
+FROM php:7.3-fpm-alpine
 
 # Set working directory
 WORKDIR /var/www/html
 
 # Install Additional dependencies
 RUN apk update && apk add --no-cache \
-    build-base shadow vim curl nginx \
-    php7 \
-    php7-fpm \
-    php7-common \
-    php7-pdo \
-    php7-pdo_mysql \
-    php7-mysqli \
-    php7-mcrypt \
-    php7-mbstring \
-    php7-xml \
-    php7-openssl \
-    php7-json \
-    php7-phar \
-    php7-zip \
-    php7-gd \
-    php7-dom \
-    php7-session \
-    php7-zlib
+    build-base shadow vim curl nginx nano
 
 # Add and Enable PHP-PDO Extenstions
-RUN docker-php-ext-install pdo pdo_mysql
-RUN docker-php-ext-enable pdo_mysql
+RUN apk update \
+    && apk add  --no-cache git mysql-client curl libmcrypt libpng-dev zlib-dev libzip-dev libmcrypt-dev openssh-client icu-dev \
+    libxml2-dev freetype-dev libpng-dev libjpeg-turbo-dev g++ make autoconf \
+    && docker-php-source extract \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    && docker-php-source delete \
+    && docker-php-ext-install pdo_mysql intl zip \
+    && echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.remote_port=9000" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.remote_handler=dbgp" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.remote_connect_back=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.idekey=mertblog.net" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.remote_host=docker.for.mac.localhost" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && rm -rf /tmp/*
 
 # Install PHP Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Install NodeJs
-RUN apk add --update nodejs npm
+# RUN apk add --update nodejs npm
 
 # Remove Cache
 RUN rm -rf /var/cache/apk/*
