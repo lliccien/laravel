@@ -35,6 +35,15 @@ services:
     networks:
       - mynet
 
+# NodeJs Service
+  nodejs:
+    image: node:lts-alpine
+    container_name: nodejs
+    tty: true
+    working_dir: /usr/src/app
+    volumes:
+      - ./:/usr/src/app
+
 #MySQL Service
   db:
     image: mysql:5.7
